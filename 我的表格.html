@@ -1,0 +1,323 @@
+  <!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        td {
+            text-align: center;
+        }
+        a{
+        	text-decoration: none;
+        	display: inline-block;
+        	padding-right:5px;
+        }
+    </style>
+   
+</head>
+
+<body>
+
+<form action="" name="form">
+    <p>
+        姓名:<input type="text" name="username"/>
+    </p>
+    <p>
+        年龄:<input type="text" name="age"/>
+    </p>
+    <p>
+        性别: <select name="sex">
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select>
+    </p>
+    <p>
+        <input type="button" value="添加" name="add"/>
+    </p>
+</form>
+    <input type="button" value="反选" class="btn">
+    <input type="button" value="批量删除"  class="btn"> 
+    <table id="tab1" width="100%" border="1">
+
+        <thead>
+        <tr>
+            <th>
+                <input id="checkAll" type="checkbox" /> 全选
+            </th>
+            <th id="ids">ID</th>
+            <th>姓名</th>
+            <th id="age">年龄</th>
+            <th>性别</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        </tbody>
+    </table>
+    <script type="text/javascript">
+		var Data = [
+			{
+				id:1,
+				name:'宋小宝',
+				age:36,
+				sex:'男'
+			},
+			{
+				id:2,
+				name:'郭德纲',
+				age:43,
+				sex:'男'
+			},
+			{
+				id:3,
+				name:'黄渤',
+				age:28,
+				sex:'男'
+			},
+			{
+				id:4,
+				name:'赵丽颖',
+				age:25,
+				sex:'女'
+			},
+			{
+				id:5,
+				name:'刘亦菲',
+				age:22,
+				sex:'女'
+			}
+		];
+  	/*
+  	 	1.渲染页面，生成一个表格信息，然后存在一个函数内
+  	 	2.上移下移删除
+  	 	3.全选
+  	 	4.反选
+  	 	5.批量删除
+  	 	6.添加数据
+  	 	7.排序
+  	 * */
+        var table=document.getElementById('tab1');
+        var tbody=table.tBodies[0];
+        var thead=table.tHead;
+        var trs=tbody.getElementsByTagName('tr');
+        
+      
+      //生成tbody结构
+        Data.forEach(function(a){ 
+        	var tr=tbody.insertRow();
+        	tr.insertCell();
+        	for(var k in a){
+        		var td=tr.insertCell();
+        	    td.innerHTML=a[k];
+        	}
+        	tr.insertCell()
+        })
+        for(var i=0;i<trs.length;i++){
+        	trs[i].firstElementChild.innerHTML='<input type="checkbox"/>';
+        	trs[i].lastElementChild.innerHTML='<a href="javascript:;">上移</a><a href="javascript:;">下移</a><a href="javascript:;">删除</a>'
+        }
+       
+        
+        //2.上移下移删除
+        fn()
+        function fn(){
+	        for(var i=0;i<trs.length;i++){
+	        	
+	        	var as=trs[i].getElementsByTagName('a');
+	        	//点击上移
+	        	as[0].onclick=function(){
+	        		var papa=this.parentNode.parentNode;//父级tr
+	        		var bro=papa.previousElementSibling;//tr上一个兄弟
+	        		if(bro){
+	            	      tbody.insertBefore(papa,bro) 
+	                }else{
+	               	  alert(1)
+	                }	
+	        	} 	
+	        	//点击下移
+	        	as[1].onclick=function(){
+	        		var papa=this.parentNode.parentNode;//父级tr
+	        		var bron=papa.nextElementSibling;//tr下一个兄弟
+	        		if(bron){
+	            	      tbody.insertBefore(bron,papa) 
+	                }else{
+	               	  alert(1)
+	                }	
+	        	} 	
+	        	//点击移除
+	        	as[2].onclick=function(){
+	        		//获取到当前位置
+	        		var arrs=Array.from(trs);
+	        		var papa=this.parentNode.parentNode;//父级tr	
+	        		var k=arrs.indexOf(papa)//获取到父级的下标值
+	        		tbody.deleteRow(k)	
+	        	} 	
+	        }
+        }
+        
+        
+        //3.全选
+        all()
+      function all(){
+        var onOff=true;
+        var inp=tbody.getElementsByTagName('input');//获取到input元素
+        var checkall=document.getElementById('checkAll');
+        var btn=document.getElementsByClassName('btn');
+        var m=0;
+        //单个input点击函数
+        for(var i=0;i<inp.length;i++){
+        	inp[i].onOff=true;
+        	inp[i].onclick=function(){
+	        	   if(this.onOff){//没有选取上。状态是false
+	        	   	   this.onOff=false;
+	        	   	   this.checked=true;
+        		    }else{//选取上，状态是TRUE
+	        			this.onOff=true;
+	        			this.checked=false;
+        	       }	
+        	     tab(0)
+        	   }
+            }
+        
+        //全选点击函数.true时没有选上，false选上
+        checkall.model=true;	 
+        checkall.onclick=function(){   
+          	if(checkall.model){
+              for(var i=0;i<inp.length;i++){ 	
+          		inp[i].checked=true;
+          		inp[i].onOff=false;}
+          		checkall.model=false;
+          	}else{
+               for(var i=0;i<inp.length;i++){
+          		inp[i].checked=false;
+          		inp[i].onOff=true;}
+          		checkall.model=true;
+          	}
+      
+        }
+       
+        //点击单个input判断m值
+        function tab(n){
+        	var m=n;
+        	for(var i=0;i<inp.length;i++){
+        		if(!inp[i].onOff){
+        			m++
+        		}
+        	}
+        	if(m==inp.length){//当所有input都选取上，全选按钮选上，并且状态变成false
+        		checkall.checked=true;
+        		checkall.model=false;
+        	}else{//有一个input没选取上，全选按钮取消，并且状态变成TRUE
+        		checkall.checked=false;
+        		checkall.model=true;
+        	}
+        }
+        
+        //返选按钮
+       btn[0].onclick = function(){
+				for(var i=0;i<inp.length;i++){
+					if(inp[i].onOff){
+						inp[i].onOff = false;
+						inp[i].checked = true;
+					}else{
+						inp[i].onOff = true;
+						inp[i].checked = false;
+					}
+				}
+				tab(0);
+			}
+        //6.批量删除,鼠标点击--判断每个input状态---状态为false的可以删除
+        btn[1].onclick=function(){
+        	for(var i=0;i<inp.length;i++){
+        		
+					if(!inp[i].onOff){//删除选取上的这项
+		        		tbody.deleteRow(i);
+		        		i--;	
+					}
+				}
+        	tab(6)
+        }
+      }
+        //7.添加
+         var form=document.getElementsByTagName('form')[0];
+         
+         //点击添加按钮tbody在加入一行tr，6列
+         form.add.onclick=function(){
+         var l=5/*trs.length*/;
+         console.log(l)
+         if(form.username.value!=''&&form.age.value!=''){
+         	
+         	var arr2=[
+                   {
+                	id:++l,
+                	name:form.username.value,
+                	age:form.age.value,
+                	sex:form.sex.value}
+                ]
+           arr2.forEach(function(a){
+           	var lastr=tbody.insertRow();
+         	lastr.insertCell();
+         	for(var k in a){
+         		var tds=lastr.insertCell();
+         		tds.innerHTML=a[k]
+         	     }
+         	lastr.insertCell();
+         	lastr.firstElementChild.innerHTML='<input type="checkbox"/>';
+         	lastr.lastElementChild.innerHTML='<a href="javascript:;">上移</a><a href="javascript:;">下移</a><a href="javascript:;">删除</a>'
+        
+            })
+           }else{
+           	alert('请输入姓名和年龄')
+           }
+             fn();
+             all();
+               
+           }
+         
+         
+         
+         
+        //8.排序
+       
+       //7排序
+         var ids=document.getElementById('ids');
+         var age=document.getElementById('age');
+      
+         ids.mob=true;
+         
+         ids.onclick=function(){
+         	if(this.mob){
+         		Array.from(trs).sort(function(a,b){
+         		return a.id-b.id
+         	     })
+         	
+         	}else{
+         		Array.from(trs).sort(function(a,b){
+         		return b.id-a.id
+         	     })
+         	    
+         	}
+         	this.mob=!this.mob
+
+         }
+         age.mo=true
+         age.onclick=function(){
+         	if(this.mo){
+         		Array.from(trs).sort(function(a,b){
+         		return a.age-b.age
+         	     })
+         	
+         	}else{
+         		Array.from(trs).sort(function(a,b){
+         		return b.age-a.age
+         	     })
+         	   
+         	}
+         	this.mo=!this.mo;
+
+         }
+      
+    </script>
+</body>
+</html>
